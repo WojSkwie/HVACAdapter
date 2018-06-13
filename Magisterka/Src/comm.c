@@ -42,7 +42,7 @@ void sendWholeData()
 	HAL_UART_Transmit_IT(&huart1,frame,12);
 }
 
-void sendOneData(uint8_t index)
+void sendSingleData(uint8_t index)
 {
 	uint8_t frame[frameSize] = {0};
 	frame[0] = startByte;
@@ -57,7 +57,12 @@ void sendOneData(uint8_t index)
 	HAL_UART_Transmit_IT(&huart1,frame,12);
 }
 
-uint16_t getSingleValueFromFrame(uint8_t frame[])
+uint16_t getSingleOutput(uint8_t index)
+{
+	return outputs[index];
+}
+
+uint16_t parseSingleValueFromFrame(uint8_t frame[])
 {
 	uint16_t value = (frame[3] << 8) + frame[4];
 	return value;
@@ -84,24 +89,23 @@ void parseFrame()
 			{
 				uint16_t values[4] = {0};
 				getAllValuesFromFrame(receivedData, values);
+				memcpy(outputs,values,8);
 				break;
 			}
 			case writeOne:
 			{
-				uint16_t singleValue = getSingleValueFromFrame(receivedData);
+				uint8_t index = receivedData[2];
+				uint16_t singleValue = parseSingleValueFromFrame(receivedData);
+				outputs[index] = singleValue;
 				break;
 			}
 			case readAll:
 				sendWholeData();
 				break;
 			case readOne:
-				sendOneData(receivedData[11]);
+				sendSingleData(receivedData[2]);
 				break;
 		}
-	}
-	else
-	{
-
 	}
 }
 

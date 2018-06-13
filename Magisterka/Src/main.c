@@ -35,7 +35,7 @@
 #include "stm32l0xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "comm.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -112,12 +112,12 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 
-	  TIM2->CCR1 = duty;
-	  TIM2->CCR2 = duty;
-	  TIM2->CCR3 = duty;
-	  TIM2->CCR4 = duty;
-	  duty++;
-	  if(duty > 5) duty = 0;
+	  TIM2->CCR1 = getSingleOutput(0);
+	  TIM2->CCR2 = getSingleOutput(1);
+	  TIM2->CCR3 = getSingleOutput(2);
+	  TIM2->CCR4 = getSingleOutput(3);
+	  //duty++;
+	  //if(duty > 5) duty = 0;
 
 	  HAL_Delay(1000);
 

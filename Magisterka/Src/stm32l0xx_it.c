@@ -36,7 +36,7 @@
 #include "stm32l0xx_it.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "comm.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -136,8 +136,13 @@ void DMA1_Channel2_3_IRQHandler(void)
   HAL_DMA_IRQHandler(&hdma_usart1_tx);
   HAL_DMA_IRQHandler(&hdma_usart1_rx);
   /* USER CODE BEGIN DMA1_Channel2_3_IRQn 1 */
-  parseFrame();
-  initializeReceive();
+  if(DMA1->ISR & DMA_ISR_TCIF3)
+  {
+	  parseFrame();
+  	  initializeReceive();
+  	  DMA1->IFCR |= DMA_IFCR_CTCIF3;
+  }
+
   /* USER CODE END DMA1_Channel2_3_IRQn 1 */
 }
 

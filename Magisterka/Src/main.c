@@ -36,6 +36,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "comm.h"
+#include "adc.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -100,7 +101,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
-  int duty = 0;
+  //int duty = 0;
   initializeReceive();
   /* USER CODE END 2 */
 
@@ -111,7 +112,7 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-
+	  uint16_t adc = GetMeasures()[0];
 	  TIM2->CCR1 = getSingleOutput(0);
 	  TIM2->CCR2 = getSingleOutput(1);
 	  TIM2->CCR3 = getSingleOutput(2);
@@ -259,7 +260,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 99;
+  htim2.Init.Period = 65535;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {

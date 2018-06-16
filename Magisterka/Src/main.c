@@ -101,7 +101,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
-  //int duty = 0;
+  int duty = 0;
   initializeReceive();
   /* USER CODE END 2 */
 
@@ -113,12 +113,16 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 	  uint16_t adc = GetMeasures()[0];
-	  TIM2->CCR1 = getSingleOutput(0);
-	  TIM2->CCR2 = getSingleOutput(1);
-	  TIM2->CCR3 = getSingleOutput(2);
-	  TIM2->CCR4 = getSingleOutput(3);
-	  //duty++;
-	  //if(duty > 5) duty = 0;
+	  //TIM2->CCR1 = getSingleOutput(0);
+	  //TIM2->CCR2 = getSingleOutput(1);
+	  //TIM2->CCR3 = getSingleOutput(2);
+	  //TIM2->CCR4 = getSingleOutput(3);
+	  TIM2->CCR1 = 1000;
+	  TIM2->CCR2 = 2000;
+	  TIM2->CCR3 = duty*1000;
+	  TIM2->CCR4 = 4000;
+	  duty++;
+	  if(duty > 5) duty = 0;
 
 	  HAL_Delay(1000);
 
@@ -294,17 +298,19 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
 
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 60;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
   }
 
+  sConfigOC.Pulse = 70;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();
   }
 
+  sConfigOC.Pulse = 80;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();

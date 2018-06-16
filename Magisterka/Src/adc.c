@@ -13,6 +13,7 @@ uint16_t* GetMeasures()
 {
 	ADC_ChannelConfTypeDef sConfig;
 	sConfig.Channel = ADC_CHANNEL_6;
+	sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
 	HAL_ADC_ConfigChannel(&hadc, &sConfig);
 
 	measured[0] = performConversion();
@@ -23,7 +24,7 @@ uint16_t performConversion()
 {
 	HAL_ADC_Start(&hadc);
 	//while(!ADC1->ISR & ADC_ISR_EOC);
-	HAL_ADC_PollForConversion(&hadc, 1);
+	HAL_ADC_PollForConversion(&hadc, 10);
 	if ((HAL_ADC_GetState(&hadc) & HAL_ADC_STATE_REG_EOC) == HAL_ADC_STATE_REG_EOC)
 	{
 		return HAL_ADC_GetValue(&hadc);

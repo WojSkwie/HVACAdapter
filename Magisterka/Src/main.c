@@ -37,11 +37,10 @@
 /* USER CODE BEGIN Includes */
 #include "comm.h"
 #include "adc.h"
+#include "gpio.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc;
-
 TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart1;
@@ -58,10 +57,8 @@ void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_ADC_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_USART1_UART_Init(void);
-                                    
+static void MX_USART1_UART_Init(void);                                    
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
 
@@ -92,11 +89,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_ADC_Init();
   MX_TIM2_Init();
   MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
+  initializeADCPins();
+  initializeADC();
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
@@ -117,10 +115,10 @@ int main(void)
 	  //TIM2->CCR2 = getSingleOutput(1);
 	  //TIM2->CCR3 = getSingleOutput(2);
 	  //TIM2->CCR4 = getSingleOutput(3);
-	  TIM2->CCR1 = 1000;
-	  TIM2->CCR2 = 2000;
-	  TIM2->CCR3 = duty*1000;
-	  TIM2->CCR4 = 4000;
+	  TIM2->CCR1 = 500;
+	  TIM2->CCR2 = 500;
+	  TIM2->CCR3 = 500;
+	  TIM2->CCR4 = 500;
 	  duty++;
 	  if(duty > 5) duty = 0;
 
@@ -188,71 +186,6 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* ADC init function */
-static void MX_ADC_Init(void)
-{
-
-  ADC_ChannelConfTypeDef sConfig;
-
-    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
-    */
-  hadc.Instance = ADC1;
-  hadc.Init.OversamplingMode = DISABLE;
-  hadc.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
-  hadc.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc.Init.SamplingTime = ADC_SAMPLETIME_12CYCLES_5;
-  hadc.Init.ScanConvMode = ADC_SCAN_DIRECTION_FORWARD;
-  hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc.Init.ContinuousConvMode = DISABLE;
-  hadc.Init.DiscontinuousConvMode = DISABLE;
-  hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc.Init.DMAContinuousRequests = DISABLE;
-  hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  hadc.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc.Init.LowPowerAutoWait = DISABLE;
-  hadc.Init.LowPowerFrequencyMode = DISABLE;
-  hadc.Init.LowPowerAutoPowerOff = DISABLE;
-  if (HAL_ADC_Init(&hadc) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-    /**Configure for the selected ADC regular channel to be converted. 
-    */
-  sConfig.Channel = ADC_CHANNEL_4;
-  sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-    /**Configure for the selected ADC regular channel to be converted. 
-    */
-  sConfig.Channel = ADC_CHANNEL_5;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-    /**Configure for the selected ADC regular channel to be converted. 
-    */
-  sConfig.Channel = ADC_CHANNEL_6;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-    /**Configure for the selected ADC regular channel to be converted. 
-    */
-  sConfig.Channel = ADC_CHANNEL_7;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-}
-
 /* TIM2 init function */
 static void MX_TIM2_Init(void)
 {
@@ -264,7 +197,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 65535;
+  htim2.Init.Period = 4095;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
@@ -362,8 +295,8 @@ static void MX_GPIO_Init(void)
 {
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
 
 }
 

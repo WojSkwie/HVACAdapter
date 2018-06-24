@@ -25,9 +25,15 @@ enum cmd
 	AnswerOne = 0x22
 };
 
+void disableHalfTransferIT()
+{
+	DMA1_Channel3->CCR &= ~(DMA_CCR_HTIE);
+}
+
 void initializeReceive()
 {
 	HAL_UART_Receive_DMA(&huart1, receivedData, frameSize);
+	disableHalfTransferIT();
 }
 
 void sendWholeData()

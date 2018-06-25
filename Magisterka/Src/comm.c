@@ -4,13 +4,11 @@
  *  Created on: 12 cze 2018
  *      Author: Wojtek
  */
-#define frameSize 12
+#define frameSize 13
 #include "comm.h"
 #include "string.h"
 #include "adc.h"
 
-//uint16_t outputs[4] = {0};
-//uint16_t inputs[4] = {0};
 const uint8_t startByte = 0xFE;
 const uint8_t endByte = 0xF0;
 extern UART_HandleTypeDef huart1;
@@ -18,18 +16,15 @@ uint8_t receivedData[20] = {0};
 
 enum cmd
 {
-	AwriteAll = 0x1,
-	AwriteOne = 0x2,
-	AreadAll = 0x11,
-	AreadOne = 0x12,
-	AAnswerAll = 0x21,
-	AAnswerOne = 0x22,
-	DwriteAll = 0x3,
-	DwriteOne = 0x4,
-	DreadAll = 0x13,
-	DreadOne = 0x14,
-	DAnswerAll = 0x23,
-	DAnswerOne = 0x24
+	writeAll = 0x1,
+	writeOneAn = 0x2,
+	writeOneDi = 0x3,
+	readAll = 0x11,
+	readOneAn = 0x12,
+	readOneDi = 0x13,
+	answerAll = 0x21,
+	answerOneAn = 0x22,
+	answerOneDi = 0x23,
 };
 
 void disableHalfTransferIT()
@@ -43,91 +38,120 @@ void initializeReceive()
 	disableHalfTransferIT();
 }
 
-void sendWholeData(uint16_t* data)
+void sendAllInputValues(uint16_t* analogValues, uint8_t digitalValues)
 {
 	uint8_t frame[frameSize] = {0};
 	frame[0] = startByte;
-	frame[1] = AAnswerAll;
+	frame[1] = answerAll;
 	for(int i = 0 ; i < 4 ; i++)
 	{
-		frame[2+2*i] = (uint8_t)((data[2*i] >> 8) & 0xFF);
-		frame[3+2*i] = (uint8_t)(data[2*i+1] & 0xFF);
+		frame[2+2*i] = (uint8_t)((analogValues[2*i] >> 8) & 0xFF);
+		frame[3+2*i] = (uint8_t)(analogValues[2*i+1] & 0xFF);
 	}
-	//memcpy(&frame[2], data,8);
-	uint8_t crc = crc8(frame,10);
-	frame[10] = crc;
-	frame[11] = endByte;
-	HAL_UART_Transmit_IT(&huart1,frame,12);
+	frame[10] = digitalValues;
+	uint8_t crc = crc8(frame, frameSize - 3);
+	frame[frameSize-2] = crc;
+	frame[frameSize-1] = endByte;
+	HAL_UART_Transmit_DMA(&huart1, frame, frameSize);
 }
 
-void sendSingleData(uint8_t index, uint16_t data)
+void sendAnalogValue(uint8_t index, uint16_t value)
 {
 	uint8_t frame[frameSize] = {0};
 	frame[0] = startByte;
-	frame[1] = AAnswerOne;
+	frame[1] = answerOneAn;
 	frame[2] = index;
-	//uint16_t temp = inputs[index];
-	frame[3] = (uint8_t)((data >> 8) & 0xFF);
-	frame[4] = (uint8_t)(data & 0xFF);
-	uint8_t crc = crc8(frame,10);
-	frame[10] = crc;
-	frame[11] = endByte;
-	HAL_UART_Transmit_IT(&huart1,frame,12);
+	frame[3] = (uint8_t)((value >> 8) & 0xFF);
+	frame[4] = (uint8_t)(value & 0xFF);
+	uint8_t crc = crc8(frame,frameSize - 3);
+	frame[frameSize-2] = crc;
+	frame[frameSize-1] = endByte;
+	HAL_UART_Transmit_IT(&huart1, frame, frameSize);
 }
 
-/*uint16_t getSingleOutput(uint8_t index)
+void sendDigitalValue(uint8_t index, uint8_t value)
 {
-	return outputs[index];
-}*/
+	uint8_t frame[frameSize] = {0};
+	frame[0] = startByte;
+	frame[1] = answerOneDi;
+	frame[2] = index;
+	frame[3] = value;
+	uint8_t crc = crc8(frame,frameSize - 3);
+	frame[frameSize-2] = crc;
+	frame[frameSize-1] = endByte;
+	HAL_UART_Transmit_IT(&huart1, frame, frameSize);
+}
 
-uint16_t parseSingleValueFromFrame(uint8_t frame[])
+uint16_t getAnalogValueFromFrame(uint8_t frame[])
 {
 	uint16_t value = (frame[3] << 8) + frame[4];
 	return value;
 }
 
-void getAllValuesFromFrame(uint8_t frame[], uint16_t values[])
+uint8_t getDigitalValueFromFrame(uint8_t frame[])
+{
+	return frame[3];
+}
+
+void getAllValuesFromFrame(uint8_t frame[], uint16_t analogValues[], uint8_t* digitalValues)
 {
 	for(int i = 0 ; i < 4 ; i++)
 	{
-		values[i] = (frame[3 + 2 * i] << 8) + frame[4 + 2 * i];
+		analogValues[i] = (frame[3 + 2 * i] << 8) + frame[4 + 2 * i];
 	}
+	digitalValues[0] = frame[10];
 }
 
 
 void parseFrame()
 {
-	if(receivedData[0] == startByte && receivedData[11] == endByte)
+	if(receivedData[0] == startByte && receivedData[frameSize-1] == endByte)
 	{
-		uint8_t crc8hw = crc8(receivedData, 10);
-		if(crc8hw != receivedData[10]) return;
+		uint8_t crc8hw = crc8(receivedData, frameSize - 3);
+		if(crc8hw != receivedData[frameSize-2]) return;
 		switch(receivedData[1])
 		{
-			case AwriteAll:
+			case writeAll:
 			{
-				uint16_t values[4] = {0};
-				getAllValuesFromFrame(receivedData, values);
-				//memcpy(outputs,values,8);
+				uint16_t analogValues[4] = {0};
+				uint8_t digitalValues = 0;
+				getAllValuesFromFrame(receivedData, analogValues, &digitalValues);
+				//analog
+				writeDigital(digitalValues);
 				break;
 			}
-			case AwriteOne:
+			case writeOneAn:
 			{
 				uint8_t index = receivedData[2];
-				uint16_t singleValue = parseSingleValueFromFrame(receivedData);
-				//outputs[index] = singleValue;
+				uint16_t singleValue = getAnalogValueFromFrame(receivedData);
 				break;
 			}
-			case AreadAll:
+			case writeOneDi:
+			{
+				uint8_t index = receivedData[2];
+				uint8_t value = getDigitalValueFromFrame(receivedData);
+				writeOneDigital(value, index);
+				break;
+			}
+			case readAll:
 			{
 				uint16_t* adc = GetMeasures();
-				sendWholeData(adc);
+				uint8_t digital = readDigital();
+				sendAllInputValues(adc, digital);
 				break;
 			}
-			case AreadOne:
+			case readOneAn:
 			{
 				uint16_t* adc = GetMeasures();
 				uint8_t index = receivedData[2];
-				sendSingleData(index, adc[index]);
+				sendAnalogValue(index, adc[index]);
+				break;
+			}
+			case readOneDi:
+			{
+				uint8_t index = receivedData[2];
+				uint8_t digital = readOneDigital(index);
+				sendDigitalValue(index, digital);
 				break;
 			}
 		}

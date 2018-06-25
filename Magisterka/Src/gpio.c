@@ -38,6 +38,13 @@ uint8_t readOneDigital(uint8_t index)
 }
 void writeDigital(uint8_t outputs)
 {
+	GPIOC->ODR &= ~(0x3F << 4);
 	GPIOC->ODR |= ((outputs & 0x3F) << 4);
-	GPIOC->ODR &= ((~(~outputs & 0x3F)) << 4);
+	//GPIOC->ODR &= ((~(~outputs & 0x3F)) << 4);
+}
+
+void writeOneDigital(uint8_t output, uint8_t index)
+{
+	GPIOC->ODR &= ~(1 << index);
+	GPIOC->ODR =  (output << index);
 }

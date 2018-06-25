@@ -14,7 +14,7 @@
 
 void initializeReceive();
 void sendWholeData();
-void sendSingleData(uint8_t index);
+void sendSingleData(uint8_t index, uint16_t data);
 uint16_t getSingleOutput(uint8_t index);
 uint16_t parseSingleValueFromFrame(uint8_t frame[]);
 void getAllValuesFromFrame(uint8_t frame[], uint16_t values[]);

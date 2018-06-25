@@ -102,6 +102,7 @@ int main(void)
   int duty = 0;
   disableHalfTransferIT();
   initializeReceive();
+  initializeDigitalPins();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,15 +112,14 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  uint16_t adc = GetMeasures()[0];
-	  //TIM2->CCR1 = getSingleOutput(0);
-	  //TIM2->CCR2 = getSingleOutput(1);
-	  //TIM2->CCR3 = getSingleOutput(2);
-	  //TIM2->CCR4 = getSingleOutput(3);
-	  TIM2->CCR1 = 500;
+	  //uint16_t adc = GetMeasures()[0];
+	  /*TIM2->CCR1 = 500;
 	  TIM2->CCR2 = 500;
 	  TIM2->CCR3 = 500;
-	  TIM2->CCR4 = 500;
+	  TIM2->CCR4 = 500;*/
+	  //uint8_t test = readDigital();
+	  writeDigital(0x3F);
+	  writeDigital(0);
 	  duty++;
 	  if(duty > 5) duty = 0;
 

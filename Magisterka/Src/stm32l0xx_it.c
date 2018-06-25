@@ -131,10 +131,7 @@ void SysTick_Handler(void)
 void DMA1_Channel2_3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel2_3_IRQn 0 */
-  /*if(DMA1->ISR & DMA_ISR_TCIF3)
-  {
-	  parseFrame();
-  }*/
+
   /* USER CODE END DMA1_Channel2_3_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_usart1_tx);
   //HAL_DMA_IRQHandler(&hdma_usart1_rx);
@@ -142,13 +139,6 @@ void DMA1_Channel2_3_IRQHandler(void)
   parseFrame();
   initializeReceive();
   DMA1->IFCR |= DMA_IFCR_CTCIF3 | DMA_IFCR_CHTIF3 | DMA_IFCR_CTEIF3;
-  /*if(DMA1->ISR & DMA_ISR_TCIF3)
-  {
-	  //parseFrame();
-  	  initializeReceive();
-  	  DMA1->IFCR |= DMA_IFCR_CTCIF3;
-  }*/
-
   /* USER CODE END DMA1_Channel2_3_IRQn 1 */
 }
 

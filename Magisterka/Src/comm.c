@@ -7,9 +7,10 @@
 #define frameSize 12
 #include "comm.h"
 #include "string.h"
+#include "adc.h"
 
-uint16_t outputs[4] = {0};
-uint16_t inputs[4] = {0};
+//uint16_t outputs[4] = {0};
+//uint16_t inputs[4] = {0};
 const uint8_t startByte = 0xFE;
 const uint8_t endByte = 0xF0;
 extern UART_HandleTypeDef huart1;
@@ -17,12 +18,18 @@ uint8_t receivedData[20] = {0};
 
 enum cmd
 {
-	writeAll = 0x1,
-	writeOne = 0x2,
-	readAll = 0x11,
-	readOne = 0x12,
-	AnswerAll = 0x21,
-	AnswerOne = 0x22
+	AwriteAll = 0x1,
+	AwriteOne = 0x2,
+	AreadAll = 0x11,
+	AreadOne = 0x12,
+	AAnswerAll = 0x21,
+	AAnswerOne = 0x22,
+	DwriteAll = 0x3,
+	DwriteOne = 0x4,
+	DreadAll = 0x13,
+	DreadOne = 0x14,
+	DAnswerAll = 0x23,
+	DAnswerOne = 0x24
 };
 
 void disableHalfTransferIT()
@@ -36,37 +43,42 @@ void initializeReceive()
 	disableHalfTransferIT();
 }
 
-void sendWholeData()
+void sendWholeData(uint16_t* data)
 {
 	uint8_t frame[frameSize] = {0};
 	frame[0] = startByte;
-	frame[1] = AnswerAll;
-	memcpy(&frame[2], inputs,8);
+	frame[1] = AAnswerAll;
+	for(int i = 0 ; i < 4 ; i++)
+	{
+		frame[2+2*i] = (uint8_t)((data[2*i] >> 8) & 0xFF);
+		frame[3+2*i] = (uint8_t)(data[2*i+1] & 0xFF);
+	}
+	//memcpy(&frame[2], data,8);
 	uint8_t crc = crc8(frame,10);
 	frame[10] = crc;
 	frame[11] = endByte;
 	HAL_UART_Transmit_IT(&huart1,frame,12);
 }
 
-void sendSingleData(uint8_t index)
+void sendSingleData(uint8_t index, uint16_t data)
 {
 	uint8_t frame[frameSize] = {0};
 	frame[0] = startByte;
-	frame[1] = AnswerOne;
+	frame[1] = AAnswerOne;
 	frame[2] = index;
-	uint16_t temp = inputs[index];
-	frame[3] = (uint8_t)((temp >> 8) & 0xFF);
-	frame[4] = (uint8_t)(temp & 0xFF);
+	//uint16_t temp = inputs[index];
+	frame[3] = (uint8_t)((data >> 8) & 0xFF);
+	frame[4] = (uint8_t)(data & 0xFF);
 	uint8_t crc = crc8(frame,10);
 	frame[10] = crc;
 	frame[11] = endByte;
 	HAL_UART_Transmit_IT(&huart1,frame,12);
 }
 
-uint16_t getSingleOutput(uint8_t index)
+/*uint16_t getSingleOutput(uint8_t index)
 {
 	return outputs[index];
-}
+}*/
 
 uint16_t parseSingleValueFromFrame(uint8_t frame[])
 {
@@ -91,26 +103,33 @@ void parseFrame()
 		if(crc8hw != receivedData[10]) return;
 		switch(receivedData[1])
 		{
-			case writeAll:
+			case AwriteAll:
 			{
 				uint16_t values[4] = {0};
 				getAllValuesFromFrame(receivedData, values);
-				memcpy(outputs,values,8);
+				//memcpy(outputs,values,8);
 				break;
 			}
-			case writeOne:
+			case AwriteOne:
 			{
 				uint8_t index = receivedData[2];
 				uint16_t singleValue = parseSingleValueFromFrame(receivedData);
-				outputs[index] = singleValue;
+				//outputs[index] = singleValue;
 				break;
 			}
-			case readAll:
-				sendWholeData();
+			case AreadAll:
+			{
+				uint16_t* adc = GetMeasures();
+				sendWholeData(adc);
 				break;
-			case readOne:
-				sendSingleData(receivedData[2]);
+			}
+			case AreadOne:
+			{
+				uint16_t* adc = GetMeasures();
+				uint8_t index = receivedData[2];
+				sendSingleData(index, adc[index]);
 				break;
+			}
 		}
 	}
 }

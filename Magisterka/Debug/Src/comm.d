@@ -28,7 +28,8 @@ Src/comm.o: ../Src/comm.c \
  D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim.h \
  D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h \
  D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h \
- D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h
+ D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h \
+ D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Inc/adc.h
 
 D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Inc/comm.h:
 
@@ -89,3 +90,5 @@ D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/I
 D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h:
 
 D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h:
+
+D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Inc/adc.h:

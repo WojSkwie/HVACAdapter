@@ -8,6 +8,7 @@
 #include "comm.h"
 #include "string.h"
 #include "adc.h"
+#include "pwm.h"
 
 const uint8_t startByte = 0xFE;
 const uint8_t endByte = 0xF0;
@@ -116,7 +117,7 @@ void parseFrame()
 				uint16_t analogValues[4] = {0};
 				uint8_t digitalValues = 0;
 				getAllValuesFromFrame(receivedData, analogValues, &digitalValues);
-				//analog
+				setAllPWM(digitalValues);
 				writeDigital(digitalValues);
 				break;
 			}
@@ -124,6 +125,7 @@ void parseFrame()
 			{
 				uint8_t index = receivedData[2];
 				uint16_t singleValue = getAnalogValueFromFrame(receivedData);
+				setOnePWM(index, singleValue);
 				break;
 			}
 			case writeOneDi:

@@ -19,6 +19,7 @@
 "Src/comm.o"
 "Src/gpio.o"
 "Src/main.o"
+"Src/pwm.o"
 "Src/stm32l0xx_hal_msp.o"
 "Src/stm32l0xx_it.o"
 "Src/system_stm32l0xx.o"

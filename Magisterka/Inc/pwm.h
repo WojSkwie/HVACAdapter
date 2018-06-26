@@ -12,4 +12,8 @@
 #include "stdint.h"
 #include "stdio.h"
 
+void initializePWM();
+void setOnePWM(uint8_t index, uint16_t value);
+void setAllPWM(uint16_t *values);
+
 #endif /* PWM_H_ */

@@ -7,6 +7,16 @@
 
 #include "pwm.h"
 
+extern TIM_HandleTypeDef htim2;
+
+void initializePWM()
+{
+	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
+}
+
 void setOnePWM(uint8_t index, uint16_t value)
 {
 	__IO uint32_t *pointer = &(TIM2->CCR1);

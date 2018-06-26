@@ -15,5 +15,6 @@
 
 uint16_t* GetMeasures();
 uint16_t performConversion();
+void initializeADC();
 
 #endif /* ADC_H_ */

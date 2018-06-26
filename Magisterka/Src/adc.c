@@ -7,21 +7,13 @@
 #include "adc.h"
 
 uint16_t measured[4] = {0};
-//extern ADC_HandleTypeDef hadc;
 
 uint16_t* GetMeasures()
 {
-	/*ADC_ChannelConfTypeDef sConfig;
-	sConfig.Channel = ADC_CHANNEL_6;
-	sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
-	HAL_ADC_ConfigChannel(&hadc, &sConfig);*/
-
 	for(int i = 0 ; i < 4 ; i++)
 	{
 		measured[i] = performConversion();
-		//HAL_Delay(1);
 	}
-	//measured[0] = performConversion();
 	return measured;
 }
 
@@ -30,17 +22,6 @@ uint16_t performConversion()
 	ADC1->CR |= ADC_CR_ADSTART;
 	while ((ADC1->ISR & ADC_ISR_EOC) == 0);
 	return ADC1->DR;
-	/*HAL_ADC_Start(&hadc);
-	//while(!ADC1->ISR & ADC_ISR_EOC);
-	HAL_ADC_PollForConversion(&hadc, 10);
-	if ((HAL_ADC_GetState(&hadc) & HAL_ADC_STATE_REG_EOC) == HAL_ADC_STATE_REG_EOC)
-	{
-		return HAL_ADC_GetValue(&hadc);
-	}
-	else*/
-	{
-		return 0;
-	}
 }
 
 void initializeADC()

@@ -95,11 +95,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   initializeADCPins();
   initializeADC();
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
-  int duty = 0;
+  initializePWM();
   disableHalfTransferIT();
   initializeReceive();
   initializeDigitalPins();
@@ -112,18 +108,7 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  /*TIM2->CCR1 = 500;
-	  TIM2->CCR2 = 500;
-	  TIM2->CCR3 = 500;
-	  TIM2->CCR4 = 500;*/
-	  //uint8_t test = readDigital();
-	  //writeDigital(0x3F);
-	  //writeDigital(0);
-	  duty++;
-	  if(duty > 5) duty = 0;
-
-	  HAL_Delay(1000);
-
+	 HAL_Delay(1);
   }
   /* USER CODE END 3 */
 

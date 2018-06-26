@@ -13,7 +13,7 @@ void setOnePWM(uint8_t index, uint16_t value)
 	pointer[index] = value;
 }
 
-void setAllPWM(uint16_t values)
+void setAllPWM(uint16_t *values)
 {
 	TIM2->CCR1 = values[0];
 	TIM2->CCR2 = values[1];

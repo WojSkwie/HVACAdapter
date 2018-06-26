@@ -1,68 +1,52 @@
-.metadata
-bin/
-tmp/
-*.tmp
-*.bak
-*.swp
-*~.nib
-local.properties
-.settings/
-.loadpath
-.recommenders
+# Prerequisites
+*.d
 
-# External tool builders
-.externalToolBuilders/
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
 
-# Locally stored "Eclipse launch configurations"
-*.launch
+# Linker output
+*.ilk
+*.map
+*.exp
 
-# PyDev specific (Python IDE for Eclipse)
-*.pydevproject
+# Precompiled Headers
+*.gch
+*.pch
 
-# CDT-specific (C/C++ Development Tooling)
-.cproject
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
 
-# CDT- autotools
-.autotools
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
 
-# Java annotation processor (APT)
-.factorypath
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
 
-# PDT-specific (PHP Development Tools)
-.buildpath
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
 
-# sbteclipse plugin
-.target
-
-# Tern plugin
-.tern-project
-
-# TeXlipse plugin
-.texlipse
-
-# STS (Spring Tool Suite)
-.springBeans
-
-# Code Recommenders
-.recommenders/
-
-# Annotation Processing
-.apt_generated/
-
-# Scala IDE specific (Scala & Java development for Eclipse)
-.cache-main
-.scala_dependencies
-.worksheet
-
-### Eclipse Patch ###
-# Eclipse Core
-.project
-
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
-
-# Annotation Processing
-.apt_generated
-
-
-# End of https://www.gitignore.io/api/eclipse
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf

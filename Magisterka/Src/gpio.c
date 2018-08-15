@@ -28,7 +28,7 @@ void initializeDigitalPins()
 uint8_t readDigital()
 {
 	uint8_t digitalInputs = (GPIOC->IDR >> 10) & 0b00111111;
-	return ~(digitalInputs);
+	return ~(digitalInputs); //TODO mask
 }
 
 uint8_t readOneDigital(uint8_t index)

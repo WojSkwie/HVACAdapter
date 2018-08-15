@@ -108,6 +108,11 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
+	 //uint16_t halves = {0, 0, 0, 0};
+	 //GetMeasures();
+	 //setAllPWM(halves);
+	  //writeDigital(0x3F);
+	 //readDigital();
 	 HAL_Delay(1);
   }
   /* USER CODE END 3 */

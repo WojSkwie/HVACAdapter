@@ -26,6 +26,8 @@ enum cmd
 	answerAll = 0x21,
 	answerOneAn = 0x22,
 	answerOneDi = 0x23,
+	echo = 0xaa,
+	echoAnswer = 0x55,
 };
 
 void disableHalfTransferIT()
@@ -53,7 +55,18 @@ void sendAllInputValues(uint16_t* analogValues, uint8_t digitalValues)
 	uint8_t crc = crc8(frame, frameSize - 3);
 	frame[frameSize-2] = crc;
 	frame[frameSize-1] = endByte;
-	HAL_UART_Transmit_DMA(&huart1, frame, frameSize);
+	HAL_UART_Transmit_IT(&huart1, frame, frameSize);
+}
+
+void sendAnswerToEcho()
+{
+	uint8_t frame[frameSize] = {0};
+	frame[0] = startByte;
+	frame[1] = echoAnswer;
+	uint8_t crc = crc8(frame, frameSize - 3);
+	frame[frameSize-2] = crc;
+	frame[frameSize-1] = endByte;
+	HAL_UART_Transmit_IT(&huart1, frame, frameSize);
 }
 
 void sendAnalogValue(uint8_t index, uint16_t value)
@@ -108,7 +121,7 @@ void parseFrame()
 {
 	if(receivedData[0] == startByte && receivedData[frameSize-1] == endByte)
 	{
-		uint8_t crc8hw = crc8(receivedData, frameSize - 3);
+		uint8_t crc8hw = crc8(&receivedData[1], frameSize - 3);
 		if(crc8hw != receivedData[frameSize-2]) return;
 		switch(receivedData[1])
 		{
@@ -156,6 +169,9 @@ void parseFrame()
 				sendDigitalValue(index, digital);
 				break;
 			}
+			case echo:
+				sendAnswerToEcho();
+				break;
 		}
 	}
 }

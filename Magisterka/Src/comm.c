@@ -12,7 +12,7 @@
 
 const uint8_t startByte = 0xFE;
 const uint8_t endByte = 0xF0;
-extern UART_HandleTypeDef huart1;
+//extern UART_HandleTypeDef huart1;
 uint8_t receivedData[20] = {0};
 
 enum cmd
@@ -37,8 +37,14 @@ void disableHalfTransferIT()
 
 void initializeReceive()
 {
-	HAL_UART_Receive_DMA(&huart1, receivedData, frameSize);
-	disableHalfTransferIT();
+	DMA1_Channel3->CCR &= ~(DMA_CCR_EN);
+	DMA1->IFCR |= DMA_IFCR_CTCIF3 | DMA_IFCR_CTEIF3;
+	DMA1_Channel3->CNDTR = frameSize;
+	DMA1_Channel3->CPAR = (uint32_t) (&(USART1->RDR));
+	DMA1_Channel3->CMAR = (uint32_t)(receivedData);
+	DMA1_Channel3->CCR |= DMA_CCR_EN;
+	//HAL_UART_Receive_DMA(&huart1, receivedData, frameSize);
+	//disableHalfTransferIT();
 }
 
 void sendAllInputValues(uint16_t* analogValues, uint8_t digitalValues)
@@ -52,10 +58,11 @@ void sendAllInputValues(uint16_t* analogValues, uint8_t digitalValues)
 		frame[3+2*i] = (uint8_t)(analogValues[2*i+1] & 0xFF);
 	}
 	frame[10] = digitalValues;
-	uint8_t crc = crc8(frame, frameSize - 3);
+	uint8_t crc = crc8(&frame[1],frameSize - 3);
 	frame[frameSize-2] = crc;
 	frame[frameSize-1] = endByte;
-	HAL_UART_Transmit_IT(&huart1, frame, frameSize);
+	sendFrameDMA(frame);
+	//HAL_UART_Transmit_IT(&huart1, frame, frameSize); TODO
 }
 
 void sendAnswerToEcho()
@@ -63,10 +70,11 @@ void sendAnswerToEcho()
 	uint8_t frame[frameSize] = {0};
 	frame[0] = startByte;
 	frame[1] = echoAnswer;
-	uint8_t crc = crc8(frame, frameSize - 3);
+	uint8_t crc = crc8(&frame[1],frameSize - 3);
 	frame[frameSize-2] = crc;
 	frame[frameSize-1] = endByte;
-	HAL_UART_Transmit_IT(&huart1, frame, frameSize);
+	sendFrameDMA(frame);
+	//HAL_UART_Transmit_IT(&huart1, frame, frameSize); TODO
 }
 
 void sendAnalogValue(uint8_t index, uint16_t value)
@@ -77,10 +85,11 @@ void sendAnalogValue(uint8_t index, uint16_t value)
 	frame[2] = index;
 	frame[3] = (uint8_t)((value >> 8) & 0xFF);
 	frame[4] = (uint8_t)(value & 0xFF);
-	uint8_t crc = crc8(frame,frameSize - 3);
+	uint8_t crc = crc8(&frame[1],frameSize - 3);
 	frame[frameSize-2] = crc;
 	frame[frameSize-1] = endByte;
-	HAL_UART_Transmit_IT(&huart1, frame, frameSize);
+	sendFrameDMA(frame);
+	//HAL_UART_Transmit_IT(&huart1, frame, frameSize); TODO
 }
 
 void sendDigitalValue(uint8_t index, uint8_t value)
@@ -90,10 +99,11 @@ void sendDigitalValue(uint8_t index, uint8_t value)
 	frame[1] = answerOneDi;
 	frame[2] = index;
 	frame[3] = value;
-	uint8_t crc = crc8(frame,frameSize - 3);
+	uint8_t crc = crc8(&frame[1],frameSize - 3);
 	frame[frameSize-2] = crc;
 	frame[frameSize-1] = endByte;
-	HAL_UART_Transmit_IT(&huart1, frame, frameSize);
+	sendFrameDMA(frame);
+	//HAL_UART_Transmit_IT(&huart1, frame, frameSize); TODO
 }
 
 uint16_t getAnalogValueFromFrame(uint8_t frame[])
@@ -191,4 +201,67 @@ uint8_t crc8(uint8_t * data, uint16_t size)
         }
     }
     return crc;
+}
+
+void initializeUART()
+{
+	RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+	USART1->CR1 |= USART_CR1_RXNEIE | USART_CR1_TE |USART_CR1_RE |USART_CR1_UE;
+	USART1->CR3 |= USART_CR3_DMAT | USART_CR3_DMAR; //USART1->RQR |= RXFRQ:
+	USART1->BRR = 139;
+	NVIC_EnableIRQ(USART1_IRQn);
+}
+
+void initializeDMA()
+{
+	RCC->AHBENR |= RCC_AHBENR_DMA1EN;
+	DMA1_CSELR->CSELR |= (3 << DMA_CSELR_C2S_Pos) | (3 << DMA_CSELR_C3S_Pos);
+
+	DMA1_Channel3->CCR |= DMA_CCR_MINC | DMA_CCR_TEIE | DMA_CCR_TCIE;
+	DMA1_Channel3->CNDTR = frameSize;
+	DMA1_Channel3->CPAR = (uint32_t) (&(USART1->RDR));
+	DMA1_Channel3->CMAR = (uint32_t)(receivedData);
+
+	DMA1_Channel3->CCR |= DMA_CCR_EN;
+	NVIC_EnableIRQ(DMA1_Channel2_3_IRQn);
+	//DMA1->I
+}
+
+void USART1_IRQHandler(void)
+{
+	if(USART1->ISR & USART_ISR_RXNE)
+	{
+		uint8_t received = USART1->RDR;
+		USART1->TDR = received;
+	}
+}
+
+void DMA1_Channel2_3_IRQHandler(void)
+{
+	if(DMA1->ISR & DMA_ISR_TCIF3)
+	{
+		parseFrame();
+		//initializeReceive();
+	}
+	else if (DMA1->ISR & DMA_ISR_TEIF3)
+	{
+		uint8_t status = DMA1->ISR;
+	}
+	initializeReceive();
+}
+
+void sendFrameDMA(uint8_t *frame)
+{
+	DMA1_Channel2->CCR &= ~(DMA_CCR_EN);
+	DMA1->IFCR |= DMA_IFCR_CTCIF2 |DMA_IFCR_CTEIF2;
+	DMA1_Channel2->CCR |= DMA_CCR_MINC | DMA_CCR_DIR;
+	DMA1_Channel2->CNDTR = frameSize;
+	DMA1_Channel2->CPAR = (uint32_t) (&(USART1->TDR));
+	DMA1_Channel2->CMAR = (uint32_t) frame;
+	DMA1_Channel2->CCR |= DMA_CCR_EN;
+}
+
+void sendByte()
+{
+	USART1->TDR = 1;
 }

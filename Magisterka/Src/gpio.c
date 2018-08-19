@@ -23,12 +23,15 @@ void initializeDigitalPins()
 			| GPIO_MODER_MODE7_1 | GPIO_MODER_MODE8_1 | GPIO_MODER_MODE9_1);
 	GPIOC->MODER &= ~(GPIO_MODER_MODE10 | GPIO_MODER_MODE11 | GPIO_MODER_MODE12
 			| GPIO_MODER_MODE13 | GPIO_MODER_MODE14 | GPIO_MODER_MODE15);
+	GPIOA->MODER &= ~(GPIO_MODER_MODE10 | GPIO_MODER_MODE9);
+	GPIOA->MODER |= GPIO_MODER_MODE10_1 | GPIO_MODER_MODE9_1;
+	GPIOA->AFR[1] |= (GPIO_AF4_USART1 << GPIO_AFRH_AFRH1_Pos) | (GPIO_AF4_USART1 << GPIO_AFRH_AFRH2_Pos);
 }
 
 uint8_t readDigital()
 {
 	uint8_t digitalInputs = (GPIOC->IDR >> 10) & 0b00111111;
-	return ~(digitalInputs); //TODO mask
+	return (~digitalInputs) & 0b00111111; //TODO mask
 }
 
 uint8_t readOneDigital(uint8_t index)

@@ -26,9 +26,7 @@ Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_gpio.o: \
  D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pwr.h \
  D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_pwr_ex.h \
  D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim.h \
- D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h \
- D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h \
- D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h
+ D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h
 
 D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:
 
@@ -83,7 +81,3 @@ D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/I
 D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim.h:
 
 D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h:
-
-D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h:
-
-D:/materialy_na_studia/MAGISTERKA/cube/Magisterka/Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h:

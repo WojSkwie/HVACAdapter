@@ -54,8 +54,8 @@ void sendAllInputValues(uint16_t* analogValues, uint8_t digitalValues)
 	frame[1] = answerAll;
 	for(int i = 0 ; i < 4 ; i++)
 	{
-		frame[2+2*i] = (uint8_t)((analogValues[2*i] >> 8) & 0xFF);
-		frame[3+2*i] = (uint8_t)(analogValues[2*i+1] & 0xFF);
+		frame[2+2*i] = (uint8_t)((analogValues[i] >> 8) & 0xFF);
+		frame[3+2*i] = (uint8_t)(analogValues[i] & 0xFF);
 	}
 	frame[10] = digitalValues;
 	uint8_t crc = crc8(&frame[1],frameSize - 3);
@@ -121,7 +121,7 @@ void getAllValuesFromFrame(uint8_t frame[], uint16_t analogValues[], uint8_t* di
 {
 	for(int i = 0 ; i < 4 ; i++)
 	{
-		analogValues[i] = (frame[3 + 2 * i] << 8) + frame[4 + 2 * i];
+		analogValues[i] = (frame[2 + 2 * i] << 8) + frame[3 + 2 * i];
 	}
 	digitalValues[0] = frame[10];
 }
@@ -140,7 +140,7 @@ void parseFrame()
 				uint16_t analogValues[4] = {0};
 				uint8_t digitalValues = 0;
 				getAllValuesFromFrame(receivedData, analogValues, &digitalValues);
-				setAllPWM(digitalValues);
+				setAllPWM(analogValues);
 				writeDigital(digitalValues);
 				break;
 			}

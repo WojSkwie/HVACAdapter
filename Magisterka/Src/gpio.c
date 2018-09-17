@@ -30,7 +30,8 @@ void initializeDigitalPins()
 
 uint8_t readDigital()
 {
-	uint8_t digitalInputs = (GPIOC->IDR >> 10) & 0b00111111;
+	//uint8_t digitalInputs = (GPIOC->IDR >> 10) & 0b00111111;
+	volatile uint8_t digitalInputs = ((GPIOC->IDR)>>10)&0x3F;
 	return (~digitalInputs) & 0b00111111; //TODO mask
 }
 
